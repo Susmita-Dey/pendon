@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue } from "framer-motion";
 import { Navbar } from "@/components/layout/navbar";
 import { EvolvingNote, NoteState } from "@/components/primitives/evolving-note";
 import { Journey } from "@/components/sections/journey";
@@ -13,6 +13,19 @@ export default function Home() {
     target: containerRef,
     offset: ["start start", "end end"],
   });
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    mouseX.set(e.clientX);
+    mouseY.set(e.clientY);
+  };
+
+  const cursorBackground = useTransform(
+    [mouseX, mouseY],
+    ([x, y]) => `radial-gradient(600px circle at ${x}px ${y}px, rgba(0,0,0,0.03), transparent 40%)`
+  );
 
   // Map scroll progress to active scenario index (0 to 5)
   const activeIndex = useTransform(scrollYProgress, 
@@ -27,45 +40,49 @@ export default function Home() {
       state: "plain" as NoteState,
     },
     {
-      title: "Budgeting",
-      description: "A note becomes a formula. Values update instantly.",
+      title: "Add a Formula",
+      description: "",
       state: "formula" as NoteState,
     },
     {
-      title: "Research",
-      description: "A note becomes a knowledge graph. Relationships emerge.",
-      state: "graph" as NoteState,
+      title: "Turn it into a Checklist",
+      description: "",
+      state: "checklist" as NoteState,
     },
     {
-      title: "Project Planning",
-      description: "A note becomes a workflow. Tasks track themselves.",
+      title: "Make it a Workflow",
+      description: "",
       state: "workflow" as NoteState,
     },
     {
-      title: "Software Architecture",
-      description: "A note becomes a connected system diagram.",
-      state: "diagram" as NoteState,
+      title: "Connect it as a Graph",
+      description: "",
+      state: "graph" as NoteState,
     }
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fafafa]">
+    <div className="flex flex-col min-h-screen bg-[#fafafa]" onMouseMove={handleMouseMove}>
       <Navbar />
       
       {/* The Continuous Canvas Scrollytelling Section */}
       <main ref={containerRef} className="relative h-[500vh] w-full">
         <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
           
-          {/* Subtle Canvas Background Dots */}
-          <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-50 pointer-events-none" />
+          {/* Environment Effects (Hero Only & Cursor Radial) */}
+          <motion.div 
+            className="absolute inset-0 pointer-events-none z-0 mix-blend-multiply" 
+            style={{ background: cursorBackground }}
+          />
+          {/* Animated Paper Grid */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_30%,transparent_100%)] opacity-50 pointer-events-none" />
 
           {/* Central Canvas Demo */}
           <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col md:flex-row items-center justify-between gap-12">
             
-            {/* Storytelling Copy (Left side on desktop, top on mobile) */}
+            {/* Storytelling Copy */}
             <div className="flex-1 w-full text-center md:text-left h-[150px] md:h-[200px] flex flex-col justify-center">
               {scenarios.map((scenario, index) => {
-                // Determine opacity based on activeIndex
                 const opacity = useTransform(activeIndex, (latest) => Math.round(latest) === index ? 1 : 0);
                 const y = useTransform(activeIndex, (latest) => Math.round(latest) === index ? 0 : 20);
                 const pointerEvents = useTransform(activeIndex, (latest) => Math.round(latest) === index ? "auto" : "none");
@@ -83,28 +100,14 @@ export default function Home() {
                     }`}>
                       {scenario.title}
                     </h2>
-                    <p className="text-lg sm:text-xl text-gray-500 text-balance">
-                      {scenario.description}
-                    </p>
                   </motion.div>
                 );
               })}
             </div>
 
             {/* The Evolving Canvas Component */}
-            <div className="flex-1 flex justify-center items-center h-[300px] w-full relative">
-              {/* Pulsing background nodes for visual identity */}
-              <motion.div 
-                className="absolute h-[400px] w-[400px] bg-gray-100 rounded-full blur-[100px] opacity-50 z-0"
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              />
-              
-              <div className="relative z-10 flex items-center justify-center">
-                {/* 
-                  Instead of re-rendering, we pass a reactive state to EvolvingNote.
-                  Since EvolvingNote takes a string prop, we use a wrapper component that subscribes to the motion value.
-                */}
+            <div className="flex-1 flex justify-center items-center h-[300px] w-full relative perspective-[1200px]">
+              <div className="relative z-10 flex items-center justify-center w-full h-full preserve-3d">
                 <MotionEvolvingNote activeIndex={activeIndex} scenarios={scenarios} />
               </div>
             </div>
@@ -113,7 +116,10 @@ export default function Home() {
         </div>
       </main>
 
+      {/* Mid-page breathes (Journey) */}
       <Journey />
+      
+      {/* Final CTA with Node Network */}
       <FinalCTA />
     </div>
   );
