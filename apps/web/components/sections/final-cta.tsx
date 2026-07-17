@@ -1,103 +1,42 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-function CheckCircleIcon(props: React.SVGProps<SVGSVGElement>) {
+function WaitlistForm({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => void, status: string }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  );
-}
-
-function AnimatedCounter({ value }: { value: number }) {
-  return (
-    <div className="flex items-center gap-2 text-sm font-medium text-gray-400">
-      <div className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-      </div>
-      <span>
-        <motion.span
-          key={value}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-block text-white"
-        >
-          {value.toLocaleString()}
-        </motion.span>{" "}
-        Founding Members joined
-      </span>
-    </div>
-  );
-}
-
-function GlowingInput({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => void, status: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const { left, top } = ref.current.getBoundingClientRect();
-    mouseX.set(e.clientX - left);
-    mouseY.set(e.clientY - top);
-  };
-
-  const background = useTransform(
-    [mouseX, mouseY],
-    ([x, y]) => `radial-gradient(300px circle at ${x}px ${y}px, rgba(255,255,255,0.15), transparent 40%)`
-  );
-
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="relative w-full max-w-md group"
-    >
-      <div
-        ref={ref}
-        onMouseMove={handleMouseMove}
-        className="relative flex w-full items-center overflow-hidden rounded-full border border-gray-800 bg-gray-900 p-1"
-      >
-        <motion.div
-          className="pointer-events-none absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-          style={{ background }}
-        />
+    <form onSubmit={onSubmit} className="relative w-full max-w-md group flex flex-col gap-4">
+      <div className="relative flex flex-col w-full overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
         <input 
           type="email" 
-          placeholder="Enter your email" 
+          placeholder="Email address" 
           required 
           disabled={status !== "idle"}
-          className="relative h-14 flex-1 bg-transparent px-6 text-white placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
+          className="relative h-12 w-full bg-transparent px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:opacity-50 border-b border-gray-100 mb-2"
         />
-        <button 
-          type="submit" 
+        <textarea
+          placeholder="What would make you use Pendon every week? (Optional)"
           disabled={status !== "idle"}
-          className="relative flex h-12 w-[140px] items-center justify-center rounded-full bg-white font-medium text-gray-950 transition-transform hover:scale-[0.98] active:scale-[0.95] disabled:opacity-80 disabled:hover:scale-100"
-        >
-          {status === "submitting" ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="h-5 w-5 rounded-full border-2 border-gray-900 border-t-transparent"
-            />
-          ) : (
-            "Get Early Access"
-          )}
-        </button>
+          rows={2}
+          className="relative w-full resize-none bg-transparent px-4 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:opacity-50 text-sm"
+        />
+        <div className="flex justify-end p-2 mt-2">
+          <button 
+            type="submit" 
+            disabled={status !== "idle"}
+            className="relative flex h-10 w-[120px] items-center justify-center rounded-full bg-gray-950 text-sm font-medium text-white transition-transform hover:scale-[0.98] active:scale-[0.95] disabled:opacity-80 disabled:hover:scale-100"
+          >
+            {status === "submitting" ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
+              />
+            ) : (
+              "Join Waitlist"
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );
@@ -105,60 +44,60 @@ function GlowingInput({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => 
 
 export function FinalCTA() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
-  const [count, setCount] = useState(1248);
-
-  // Simulate counter randomly ticking up
-  useEffect(() => {
-    if (status === "success") return;
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        setCount(prev => prev + 1);
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [status]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("submitting");
     setTimeout(() => {
       setStatus("success");
-      setCount(prev => prev + 1);
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <section className="relative overflow-hidden bg-gray-950 px-6 py-40 sm:py-56 text-center text-white">
-      {/* Subtle animated background glow */}
-      <motion.div 
-        animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.15, 0.05] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white blur-[120px]"
-      />
+    <section className="relative overflow-hidden bg-white px-6 py-32 sm:py-48 text-center border-t border-gray-100">
+      
+      {/* Visual Identity: Connected notes pulsing in background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center opacity-30">
+        <svg className="absolute w-[800px] h-[800px]" viewBox="0 0 800 800">
+          <motion.path
+            d="M 200 200 Q 400 300 600 200"
+            fill="none" stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 4"
+            initial={{ pathLength: 0 }}
+            whileInView={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+          />
+          <motion.path
+            d="M 600 200 Q 500 500 300 600"
+            fill="none" stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 4"
+            initial={{ pathLength: 0 }}
+            whileInView={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
+          />
+          
+          {/* Nodes */}
+          <motion.circle cx="200" cy="200" r="8" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="2" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }} />
+          <motion.circle cx="600" cy="200" r="12" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="2" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity, delay: 1 }} />
+          <motion.circle cx="300" cy="600" r="6" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="2" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity, delay: 2 }} />
+        </svg>
+      </div>
 
-      <div className="relative mx-auto flex max-w-3xl flex-col items-center z-10 min-h-[300px]">
-        
+      <div className="relative mx-auto flex max-w-2xl flex-col items-center z-10 min-h-[300px]">
         <AnimatePresence mode="wait">
           {status === "success" ? (
             <motion.div 
               key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center justify-center py-12"
             >
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", damping: 12, delay: 0.1 }}
-                className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400"
-              >
-                <CheckCircleIcon className="h-10 w-10" />
-              </motion.div>
-              <h2 className="font-lora text-4xl font-medium tracking-tight text-white sm:text-5xl mb-4">
+              <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                <svg className="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <h2 className="font-lora text-3xl font-medium tracking-tight text-gray-950 sm:text-4xl mb-4">
                 You're on the list.
               </h2>
-              <p className="text-gray-400 text-lg">
-                Welcome to the first wave of thinkers. We'll be in touch soon.
+              <p className="text-gray-500 text-lg">
+                We'll reach out when it's your turn.
               </p>
             </motion.div>
           ) : (
@@ -168,35 +107,17 @@ export function FinalCTA() {
               exit={{ opacity: 0, y: -20 }}
               className="flex flex-col items-center w-full"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                className="mb-8"
-              >
-                <AnimatedCounter value={count} />
-              </motion.div>
+              <h2 className="font-lora text-4xl font-medium tracking-tight sm:text-5xl text-balance leading-tight mb-4 text-gray-950">
+                Help shape Pendon.
+              </h2>
               
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="font-lora text-5xl font-medium tracking-tight sm:text-7xl text-balance leading-[1.1] mb-16"
-              >
-                Be among the first thinkers.
-              </motion.h2>
+              <p className="text-gray-500 text-lg sm:text-xl text-balance max-w-md mb-12">
+                Pendon is being built in public. Every week we ship something new. Join early and help shape what comes next.
+              </p>
               
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full flex justify-center"
-              >
-                <GlowingInput onSubmit={handleSubmit} status={status} />
-              </motion.div>
+              <div className="w-full flex justify-center">
+                <WaitlistForm onSubmit={handleSubmit} status={status} />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
