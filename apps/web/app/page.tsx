@@ -5,6 +5,10 @@ import { motion, useScroll, useTransform, useMotionValue } from "framer-motion";
 import { Navbar } from "@/components/layout/navbar";
 import { EvolvingNote, NoteState } from "@/components/primitives/evolving-note";
 import { Journey } from "@/components/sections/journey";
+import { Features } from "@/components/sections/features";
+import { Footer } from "@/components/sections/footer";
+import { useState, useEffect as ReactEffect } from "react";
+import type { MotionValue } from "framer-motion";
 import { FinalCTA } from "@/components/sections/final-cta";
 
 export default function Home() {
@@ -35,28 +39,28 @@ export default function Home() {
 
   const scenarios = [
     {
-      title: "Start with a note.\nEnd anywhere.",
-      description: "",
+      title: "Start with a note\nin canvas.\nEnd anywhere.",
+      description: "Everything begins with a thought.",
       state: "plain" as NoteState,
     },
     {
       title: "Add a Formula",
-      description: "",
+      description: "Watch ideas become live calculations.",
       state: "formula" as NoteState,
     },
     {
       title: "Turn it into a Checklist",
-      description: "",
+      description: "Structure your execution and track progress.",
       state: "checklist" as NoteState,
     },
     {
       title: "Make it a Workflow",
-      description: "",
+      description: "Transform static lists into active systems.",
       state: "workflow" as NoteState,
     },
     {
-      title: "Connect it as a Graph",
-      description: "",
+      title: "Connect as a Graph",
+      description: "Reveal relationships hidden inside your work.",
       state: "graph" as NoteState,
     }
   ];
@@ -66,7 +70,7 @@ export default function Home() {
       <Navbar />
       
       {/* The Continuous Canvas Scrollytelling Section */}
-      <main ref={containerRef} className="relative h-[500vh] w-full">
+      <main ref={containerRef} className="relative h-[625vh] w-full">
         <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
           
           {/* Environment Effects (Hero Only & Cursor Radial) */}
@@ -75,13 +79,13 @@ export default function Home() {
             style={{ background: cursorBackground }}
           />
           {/* Animated Paper Grid */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_30%,transparent_100%)] opacity-50 pointer-events-none" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-size-[2rem_2rem] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_30%,transparent_100%)] opacity-50 pointer-events-none" />
 
           {/* Central Canvas Demo */}
-          <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-12 pb-[10vh]">
             
             {/* Storytelling Copy */}
-            <div className="flex-1 w-full text-center md:text-left h-[150px] md:h-[200px] flex flex-col justify-center">
+            <div className="flex-1 w-full text-center md:text-left h-[200px] md:h-[400px] flex flex-col justify-center">
               {scenarios.map((scenario, index) => {
                 const opacity = useTransform(activeIndex, (latest) => Math.round(latest) === index ? 1 : 0);
                 const y = useTransform(activeIndex, (latest) => Math.round(latest) === index ? 0 : 20);
@@ -100,16 +104,26 @@ export default function Home() {
                     }`}>
                       {scenario.title}
                     </h2>
+                    {scenario.description && (
+                      <p className="text-xl sm:text-2xl text-gray-500 font-medium tracking-tight">
+                        {scenario.description}
+                      </p>
+                    )}
                   </motion.div>
                 );
               })}
             </div>
 
             {/* The Evolving Canvas Component */}
-            <div className="flex-1 flex justify-center items-center h-[300px] w-full relative perspective-[1200px]">
-              <div className="relative z-10 flex items-center justify-center w-full h-full preserve-3d">
+            <div className="flex-1 flex justify-center items-center md:items-end h-[450px] w-full relative perspective-[1200px]">
+              <motion.div 
+                initial={{ opacity: 0, y: 150, rotateX: 20 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="relative z-10 flex items-center justify-center w-full h-full preserve-3d origin-bottom"
+              >
                 <MotionEvolvingNote activeIndex={activeIndex} scenarios={scenarios} />
-              </div>
+              </motion.div>
             </div>
 
           </div>
@@ -118,16 +132,17 @@ export default function Home() {
 
       {/* Mid-page breathes (Journey) */}
       <Journey />
+
+      <Features />
       
       {/* Final CTA with Node Network */}
       <FinalCTA />
+
+      <Footer />
     </div>
   );
 }
 
-// Wrapper to reactively pass the state to EvolvingNote based on MotionValue
-import { useState, useEffect as ReactEffect } from "react";
-import type { MotionValue } from "framer-motion";
 
 function MotionEvolvingNote({ activeIndex, scenarios }: { activeIndex: MotionValue<number>, scenarios: any[] }) {
   const [index, setIndex] = useState(0);

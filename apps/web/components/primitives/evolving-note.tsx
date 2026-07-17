@@ -11,6 +11,14 @@ interface EvolvingNoteProps {
 
 export function EvolvingNote({ state }: EvolvingNoteProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [checkedItems, setCheckedItems] = useState([false, false, false]);
+
+  const toggleCheck = (idx: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newChecked = [...checkedItems];
+    newChecked[idx] = !newChecked[idx];
+    setCheckedItems(newChecked);
+  };
 
   // The visual signature: a subtle colored edge depending on state
   const edgeColor = 
@@ -29,14 +37,14 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
         rotateX: 4, 
         rotateY: -4, 
         scale: 1.02,
-        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
+        boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.15)",
         transition: { type: "spring", stiffness: 200, damping: 20 }
       }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className="relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg cursor-pointer transform-gpu"
+      transition={{ duration: 0.8, ease: "anticipate" }}
+      className="relative flex flex-col overflow-hidden rounded-sm bg-[#fdfdfc] shadow-xl shadow-gray-200/50 cursor-pointer transform-gpu"
       style={{
-        width: state === "plain" ? 220 : state === "workflow" ? 300 : 260,
-        minHeight: state === "plain" ? 80 : state === "graph" ? 220 : 160,
+        width: state === "plain" ? 360 : state === "workflow" ? 480 : 420,
+        minHeight: state === "plain" ? 130 : state === "graph" ? 360 : state === "workflow" ? 320 : 260,
         transformStyle: "preserve-3d",
       }}
     >
@@ -62,38 +70,38 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
         {state === "plain" && (
           <motion.div
             key="plain"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="flex h-full w-full items-center p-5"
+            initial={{ opacity: 0, x: 50, filter: "blur(4px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -50, filter: "blur(4px)" }}
+            transition={{ duration: 0.8, ease: "anticipate" }}
+            className="flex h-full w-full items-center p-8 absolute inset-0"
           >
-            <span className="font-mono text-sm text-gray-700 font-medium">Launch Product</span>
+            <span className="font-mono text-lg text-gray-700 font-medium">Launch Product</span>
           </motion.div>
         )}
 
         {state === "formula" && (
           <motion.div
             key="formula"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="flex h-full w-full flex-col justify-center gap-3 p-5 pt-6"
+            initial={{ opacity: 0, x: 50, filter: "blur(4px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -50, filter: "blur(4px)" }}
+            transition={{ duration: 0.8, ease: "anticipate" }}
+            className="flex h-full w-full flex-col justify-center gap-4 p-8 pt-10 absolute inset-0"
           >
-            <div className="font-mono text-sm font-medium text-gray-900 mb-1">Launch Product</div>
-            <div className="flex justify-between font-mono text-sm text-gray-500">
+            <div className="font-mono text-lg font-medium text-gray-900 mb-2">Launch Product</div>
+            <div className="flex justify-between font-mono text-base text-gray-500 hover:text-gray-900 transition-colors">
               <span>Marketing</span>
               <span>$4000</span>
             </div>
-            <div className="flex justify-between font-mono text-sm text-gray-500">
+            <div className="flex justify-between font-mono text-base text-gray-500 hover:text-gray-900 transition-colors">
               <span>Servers</span>
               <span>$1200</span>
             </div>
-            <div className="h-px w-full bg-gray-200 my-1" />
-            <div className="flex justify-between font-mono text-sm font-medium text-gray-900">
+            <div className="h-px w-full bg-gray-200 my-2" />
+            <div className="flex justify-between font-mono text-base font-medium text-gray-900">
               <span>Total Budget</span>
-              <span className="text-emerald-600">$5200</span>
+              <span className="text-[#D9A441]">$5200</span>
             </div>
           </motion.div>
         )}
@@ -101,26 +109,39 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
         {state === "checklist" && (
           <motion.div
             key="checklist"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="flex h-full w-full flex-col gap-3 p-5 pt-6"
+            initial={{ opacity: 0, x: 50, filter: "blur(4px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -50, filter: "blur(4px)" }}
+            transition={{ duration: 0.8, ease: "anticipate" }}
+            className="flex h-full w-full flex-col gap-4 p-8 pt-10 absolute inset-0"
           >
-            <div className="font-mono text-sm font-medium text-gray-900 mb-2">Launch Product</div>
-            <div className="flex items-center gap-3">
-              <div className="h-4 w-4 rounded-sm border-2 border-emerald-500 bg-emerald-500 flex items-center justify-center">
-                <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <span className="font-mono text-sm text-gray-400 line-through">Finalize copy</span>
+            <div className="font-mono text-lg font-medium text-gray-900 mb-4">Launch Product</div>
+            <div className="flex items-center gap-4 group cursor-pointer" onClick={(e) => toggleCheck(0, e)}>
+              <motion.div 
+                animate={{ backgroundColor: checkedItems[0] ? "#D9A441" : "#ffffff", borderColor: checkedItems[0] ? "#D9A441" : "#d1d5db" }}
+                className="h-5 w-5 rounded-sm border-2 flex items-center justify-center transition-colors shadow-sm"
+              >
+                <motion.svg animate={{ opacity: checkedItems[0] ? 1 : 0, scale: checkedItems[0] ? 1 : 0.5 }} className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></motion.svg>
+              </motion.div>
+              <span className={`font-mono text-base transition-colors ${checkedItems[0] ? "text-gray-400 line-through" : "text-gray-700 group-hover:text-gray-900"}`}>Finalize copy</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="h-4 w-4 rounded-sm border-2 border-gray-300" />
-              <span className="font-mono text-sm text-gray-700">Deploy to production</span>
+            <div className="flex items-center gap-4 group cursor-pointer" onClick={(e) => toggleCheck(1, e)}>
+              <motion.div 
+                animate={{ backgroundColor: checkedItems[1] ? "#D9A441" : "#ffffff", borderColor: checkedItems[1] ? "#D9A441" : "#d1d5db" }}
+                className="h-5 w-5 rounded-sm border-2 flex items-center justify-center transition-colors shadow-sm"
+              >
+                <motion.svg animate={{ opacity: checkedItems[1] ? 1 : 0, scale: checkedItems[1] ? 1 : 0.5 }} className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></motion.svg>
+              </motion.div>
+              <span className={`font-mono text-base transition-colors ${checkedItems[1] ? "text-gray-400 line-through" : "text-gray-700 group-hover:text-gray-900"}`}>Deploy to production</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="h-4 w-4 rounded-sm border-2 border-gray-300" />
-              <span className="font-mono text-sm text-gray-700">Send email blast</span>
+            <div className="flex items-center gap-4 group cursor-pointer" onClick={(e) => toggleCheck(2, e)}>
+              <motion.div 
+                animate={{ backgroundColor: checkedItems[2] ? "#D9A441" : "#ffffff", borderColor: checkedItems[2] ? "#D9A441" : "#d1d5db" }}
+                className="h-5 w-5 rounded-sm border-2 flex items-center justify-center transition-colors shadow-sm"
+              >
+                <motion.svg animate={{ opacity: checkedItems[2] ? 1 : 0, scale: checkedItems[2] ? 1 : 0.5 }} className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></motion.svg>
+              </motion.div>
+              <span className={`font-mono text-base transition-colors ${checkedItems[2] ? "text-gray-400 line-through" : "text-gray-700 group-hover:text-gray-900"}`}>Send email blast</span>
             </div>
           </motion.div>
         )}
@@ -128,74 +149,106 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
         {state === "workflow" && (
           <motion.div
             key="workflow"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="flex h-full w-full flex-col gap-3 p-5 pt-6"
+            initial={{ opacity: 0, x: 50, filter: "blur(4px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -50, filter: "blur(4px)" }}
+            transition={{ duration: 0.8, ease: "anticipate" }}
+            className="flex h-full w-full flex-col gap-4 p-8 absolute inset-0"
           >
-            <div className="font-mono text-sm font-medium text-gray-900 mb-2">Launch Product</div>
-            <div className="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-200">
-              <span className="font-mono text-xs text-gray-600">To Do</span>
-              <span className="h-5 w-5 rounded bg-white border border-gray-200 text-[10px] flex items-center justify-center text-gray-600 font-medium">3</span>
-            </div>
-            <div className="flex justify-between items-center bg-blue-50/50 p-2 rounded border border-blue-100">
-              <span className="font-mono text-xs text-blue-700">In Progress</span>
-              <span className="h-5 w-5 rounded bg-white border border-blue-200 text-[10px] flex items-center justify-center text-blue-700 font-medium shadow-sm">1</span>
-            </div>
-            <div className="flex justify-between items-center bg-emerald-50/50 p-2 rounded border border-emerald-100">
-              <span className="font-mono text-xs text-emerald-700">Done</span>
-              <span className="h-5 w-5 rounded bg-white border border-emerald-200 text-[10px] flex items-center justify-center text-emerald-700 font-medium shadow-sm">12</span>
-            </div>
+            <div className="font-mono text-lg font-medium text-gray-900 mb-4">Launch Product</div>
+            <motion.div whileHover={{ x: 4, backgroundColor: "#f9fafb" }} className="flex justify-between items-center bg-gray-50 p-3 rounded border border-gray-200 cursor-pointer">
+              <span className="font-mono text-sm text-gray-600">To Do</span>
+              <span className="h-6 w-6 rounded bg-white border border-gray-200 text-xs flex items-center justify-center text-gray-600 font-medium">3</span>
+            </motion.div>
+            <motion.div whileHover={{ x: 4, backgroundColor: "#eff6ff" }} className="flex justify-between items-center bg-blue-50/50 p-3 rounded border border-blue-100 cursor-pointer">
+              <span className="font-mono text-sm text-blue-700">In Progress</span>
+              <span className="h-6 w-6 rounded bg-white border border-blue-200 text-xs flex items-center justify-center text-blue-700 font-medium shadow-sm">1</span>
+            </motion.div>
+            <motion.div whileHover={{ x: 4, backgroundColor: "#fdf8ef" }} className="flex justify-between items-center bg-[#D9A441]/10 p-3 rounded border border-[#D9A441]/20 cursor-pointer">
+              <span className="font-mono text-sm text-[#D9A441]">Done</span>
+              <span className="h-6 w-6 rounded bg-white border border-[#D9A441]/30 text-xs flex items-center justify-center text-[#D9A441] font-medium shadow-sm">12</span>
+            </motion.div>
           </motion.div>
         )}
 
         {state === "graph" && (
           <motion.div
             key="graph"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="relative flex h-full w-full items-center justify-center p-5 pt-6"
+            initial={{ opacity: 0, x: 50, filter: "blur(4px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -50, filter: "blur(4px)" }}
+            transition={{ duration: 0.8, ease: "anticipate" }}
+            className="relative flex h-full w-full items-center justify-center p-8 pt-10 absolute inset-0"
           >
-            <div className="absolute top-5 left-5 font-mono text-sm font-medium text-gray-900">Launch Product</div>
-            
-            {/* Knowledge graph nodes representing connected notes */}
+            {/* Knowledge graph central node */}
             <motion.div 
-              className="absolute h-10 w-24 rounded border border-indigo-200 bg-indigo-50 flex items-center justify-center text-indigo-700 font-mono text-xs shadow-sm"
-              animate={isHovered ? { x: -5, y: -5 } : { x: 0, y: 0 }}
+              className="absolute z-10 h-12 w-32 rounded border border-gray-200 bg-white flex items-center justify-center text-gray-900 font-mono text-sm shadow-md cursor-pointer hover:border-[#D9A441] hover:text-[#D9A441] transition-colors group"
+              animate={isHovered ? { x: -2, y: -2, scale: 1.05 } : { x: 0, y: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              Launch Product
+              <motion.div className="absolute -inset-2 rounded bg-[#D9A441]/10 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" />
+            </motion.div>
+            
+            <motion.div 
+              className="absolute h-10 w-28 rounded border border-indigo-200 bg-indigo-50 flex items-center justify-center text-indigo-700 font-mono text-xs shadow-sm -translate-x-28 -translate-y-20 cursor-pointer hover:bg-indigo-100 hover:scale-110 transition-all z-10"
+              animate={isHovered ? { x: -6, y: -6 } : { x: 0, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               Marketing
             </motion.div>
             
             <motion.div 
-              className="absolute h-8 w-20 rounded border border-rose-200 bg-rose-50 flex items-center justify-center text-rose-700 font-mono text-[10px] shadow-sm -translate-x-16 translate-y-16"
-              animate={isHovered ? { x: -10, y: 10 } : { x: 0, y: 0 }}
+              className="absolute h-10 w-28 rounded border border-rose-200 bg-rose-50 flex items-center justify-center text-rose-700 font-mono text-xs shadow-sm translate-x-32 -translate-y-12 cursor-pointer hover:bg-rose-100 hover:scale-110 transition-all z-10"
+              animate={isHovered ? { x: 6, y: -4 } : { x: 0, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              Assets
+              Design
             </motion.div>
             
             <motion.div 
-              className="absolute h-8 w-20 rounded border border-amber-200 bg-amber-50 flex items-center justify-center text-amber-700 font-mono text-[10px] shadow-sm translate-x-16 translate-y-12"
-              animate={isHovered ? { x: 10, y: 10 } : { x: 0, y: 0 }}
+              className="absolute h-10 w-28 rounded border border-amber-200 bg-amber-50 flex items-center justify-center text-amber-700 font-mono text-xs shadow-sm -translate-x-8 translate-y-24 cursor-pointer hover:bg-amber-100 hover:scale-110 transition-all z-10"
+              animate={isHovered ? { x: 2, y: 8 } : { x: 0, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               Servers
             </motion.div>
             
-            <svg className="absolute inset-0 h-full w-full pointer-events-none" style={{ zIndex: -1 }}>
+            <svg className="absolute inset-0 h-full w-full pointer-events-none" style={{ zIndex: 0 }}>
+              {/* Animated pulses along lines */}
+              <motion.circle r="3" fill="#D9A441"
+                animate={{ cx: ["50%", "25%"], cy: ["50%", "25%"], opacity: [0, 1, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: 0.5 }}
+              />
+              <motion.circle r="3" fill="#D9A441"
+                animate={{ cx: ["50%", "75%"], cy: ["50%", "35%"], opacity: [0, 1, 0] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "linear", delay: 1 }}
+              />
+              <motion.circle r="3" fill="#D9A441"
+                animate={{ cx: ["50%", "42%"], cy: ["50%", "80%"], opacity: [0, 1, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "linear", delay: 0.2 }}
+              />
+              
               <motion.line 
-                x1="50%" y1="50%" x2="25%" y2="80%" 
-                stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="3 3" 
-                animate={isHovered ? { x2: "20%", y2: "85%" } : { x2: "25%", y2: "80%" }}
+                x1="50%" y1="50%" x2="25%" y2="25%" 
+                stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 4" 
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
               />
               <motion.line 
-                x1="50%" y1="50%" x2="75%" y2="70%" 
-                stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="3 3" 
-                animate={isHovered ? { x2: "80%", y2: "75%" } : { x2: "75%", y2: "70%" }}
+                x1="50%" y1="50%" x2="75%" y2="35%" 
+                stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 4" 
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut", delay: 0.6 }}
+              />
+              <motion.line 
+                x1="50%" y1="50%" x2="42%" y2="80%" 
+                stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 4" 
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut", delay: 0.9 }}
               />
             </svg>
           </motion.div>
