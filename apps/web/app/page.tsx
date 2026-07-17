@@ -10,6 +10,8 @@ import { Footer } from "@/components/sections/footer";
 import { useState, useEffect as ReactEffect } from "react";
 import type { MotionValue } from "framer-motion";
 import { FinalCTA } from "@/components/sections/final-cta";
+import { TargetAudience } from "@/components/sections/target-audience";
+import { CustomCursor } from "@/components/primitives/custom-cursor";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,11 +68,12 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fafafa]" onMouseMove={handleMouseMove}>
+    <div className="relative min-h-screen bg-[#fdfdfc] text-gray-950 font-sans selection:bg-[#D9A441] selection:text-white" ref={containerRef}>
+      <CustomCursor />
       <Navbar />
       
       {/* The Continuous Canvas Scrollytelling Section */}
-      <main ref={containerRef} className="relative h-[625vh] w-full">
+      <main ref={containerRef} className="relative h-[625vh] w-full" onMouseMove={handleMouseMove}>
         <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
           
           {/* Environment Effects (Hero Only & Cursor Radial) */}
@@ -95,17 +98,17 @@ export default function Home() {
                   <motion.div 
                     key={index}
                     style={{ opacity, y, pointerEvents }}
-                    className={`absolute flex flex-col gap-4 ${index === 0 ? 'w-full md:w-[120%]' : 'max-w-sm'}`}
+                    className={`absolute flex flex-col gap-4 w-full left-0 md:left-auto md:w-auto items-center md:items-start ${index === 0 ? 'md:w-[120%]' : 'md:max-w-sm'}`}
                   >
                     <h2 className={`font-lora font-medium tracking-tighter text-gray-950 leading-[1.05] whitespace-pre-line ${
                       index === 0 
-                        ? 'text-6xl sm:text-[5.5rem] lg:text-[7rem]' 
-                        : 'text-3xl sm:text-5xl'
+                        ? 'text-[2.75rem] leading-none sm:text-[4rem] md:text-[5.5rem] lg:text-[7rem]' 
+                        : 'text-3xl sm:text-5xl lg:text-7xl xl:text-[5.5rem]'
                     }`}>
                       {scenario.title}
                     </h2>
                     {scenario.description && (
-                      <p className="text-xl sm:text-2xl text-gray-500 font-medium tracking-tight">
+                      <p className="text-xl sm:text-2xl lg:text-3xl text-gray-500 font-medium tracking-tight text-center md:text-left">
                         {scenario.description}
                       </p>
                     )}
@@ -115,14 +118,16 @@ export default function Home() {
             </div>
 
             {/* The Evolving Canvas Component */}
-            <div className="flex-1 flex justify-center items-center md:items-end h-[450px] w-full relative perspective-[1200px]">
+            <div className="flex-1 flex justify-center items-center md:items-end h-[350px] sm:h-[400px] md:h-[450px] w-full relative perspective-[1200px] mt-8 md:mt-0">
               <motion.div 
                 initial={{ opacity: 0, y: 150, rotateX: 20 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="relative z-10 flex items-center justify-center w-full h-full preserve-3d origin-bottom"
               >
-                <MotionEvolvingNote activeIndex={activeIndex} scenarios={scenarios} />
+                <div className="transform scale-[0.7] sm:scale-90 md:scale-100 origin-center lg:origin-bottom">
+                  <MotionEvolvingNote activeIndex={activeIndex} scenarios={scenarios} />
+                </div>
               </motion.div>
             </div>
 
@@ -130,6 +135,8 @@ export default function Home() {
         </div>
       </main>
 
+      <TargetAudience />
+      
       {/* Mid-page breathes (Journey) */}
       <Journey />
 

@@ -20,13 +20,13 @@ export function Journey() {
   ];
 
   return (
-    <section ref={containerRef} className="relative bg-[#fafafa] px-6 py-32 sm:py-48 flex flex-col items-center justify-center overflow-hidden border-t border-gray-100">
+    <section ref={containerRef} className="relative bg-[#fafafa] px-6 py-24 sm:py-48 flex flex-col items-center justify-center overflow-hidden border-t border-gray-100">
       <div className="mx-auto text-center max-w-5xl z-10 w-full">
         <h2 className="font-lora text-4xl sm:text-6xl font-medium tracking-tight text-gray-950 mb-24">
           Built in public.
         </h2>
         
-        <div className="relative flex flex-col sm:flex-row justify-between items-start w-full gap-12 sm:gap-4 mt-8">
+        <div className="relative flex flex-col sm:flex-row justify-between items-center sm:items-start w-full gap-12 sm:gap-4 mt-8">
           {/* Animated connection line through the journey */}
           <div className="absolute top-4 left-[5%] right-[5%] h-px hidden sm:block">
             {/* Background line */}

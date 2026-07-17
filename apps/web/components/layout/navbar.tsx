@@ -7,7 +7,7 @@ import { Button } from "@repo/ui/button";
 
 const navLinks = [
   { name: "Demo", href: "#demo" },
-  { name: "GitHub", href: "https://github.com" },
+  { name: "GitHub", href: "https://github.com/Susmita-Dey/pendon" },
 ];
 
 function MagneticButton({ children }: { children: React.ReactNode }) {

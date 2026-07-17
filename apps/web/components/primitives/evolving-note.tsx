@@ -44,7 +44,7 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
       className="relative flex flex-col overflow-hidden rounded-sm bg-[#fdfdfc] shadow-xl shadow-gray-200/50 cursor-pointer transform-gpu"
       style={{
         width: state === "plain" ? 360 : state === "workflow" ? 480 : 420,
-        minHeight: state === "plain" ? 130 : state === "graph" ? 360 : state === "workflow" ? 320 : 260,
+        height: state === "plain" ? 130 : state === "graph" ? 360 : state === "workflow" ? 320 : 260,
         transformStyle: "preserve-3d",
       }}
     >
@@ -182,7 +182,7 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
           >
             {/* Knowledge graph central node */}
             <motion.div 
-              className="absolute z-10 h-12 w-32 rounded border border-gray-200 bg-white flex items-center justify-center text-gray-900 font-mono text-sm shadow-md cursor-pointer hover:border-[#D9A441] hover:text-[#D9A441] transition-colors group"
+              className="absolute top-1/2 left-1/2 -mt-6 -ml-16 z-10 h-12 w-32 rounded border border-gray-200 bg-white flex items-center justify-center text-gray-900 font-mono text-sm shadow-md cursor-pointer hover:border-[#D9A441] hover:text-[#D9A441] transition-colors group"
               animate={isHovered ? { x: -2, y: -2, scale: 1.05 } : { x: 0, y: 0, scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
@@ -191,7 +191,7 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
             </motion.div>
             
             <motion.div 
-              className="absolute h-10 w-28 rounded border border-indigo-200 bg-indigo-50 flex items-center justify-center text-indigo-700 font-mono text-xs shadow-sm -translate-x-28 -translate-y-20 cursor-pointer hover:bg-indigo-100 hover:scale-110 transition-all z-10"
+              className="absolute top-1/2 left-1/2 -mt-5 -ml-14 h-10 w-28 rounded border border-indigo-200 bg-indigo-50 flex items-center justify-center text-indigo-700 font-mono text-xs shadow-sm -translate-x-28 -translate-y-20 cursor-pointer hover:bg-indigo-100 hover:scale-110 transition-all z-10"
               animate={isHovered ? { x: -6, y: -6 } : { x: 0, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
@@ -199,7 +199,7 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
             </motion.div>
             
             <motion.div 
-              className="absolute h-10 w-28 rounded border border-rose-200 bg-rose-50 flex items-center justify-center text-rose-700 font-mono text-xs shadow-sm translate-x-32 -translate-y-12 cursor-pointer hover:bg-rose-100 hover:scale-110 transition-all z-10"
+              className="absolute top-1/2 left-1/2 -mt-5 -ml-14 h-10 w-28 rounded border border-rose-200 bg-rose-50 flex items-center justify-center text-rose-700 font-mono text-xs shadow-sm translate-x-32 -translate-y-12 cursor-pointer hover:bg-rose-100 hover:scale-110 transition-all z-10"
               animate={isHovered ? { x: 6, y: -4 } : { x: 0, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
@@ -207,7 +207,7 @@ export function EvolvingNote({ state }: EvolvingNoteProps) {
             </motion.div>
             
             <motion.div 
-              className="absolute h-10 w-28 rounded border border-amber-200 bg-amber-50 flex items-center justify-center text-amber-700 font-mono text-xs shadow-sm -translate-x-8 translate-y-24 cursor-pointer hover:bg-amber-100 hover:scale-110 transition-all z-10"
+              className="absolute top-1/2 left-1/2 -mt-5 -ml-14 h-10 w-28 rounded border border-amber-200 bg-amber-50 flex items-center justify-center text-amber-700 font-mono text-xs shadow-sm -translate-x-8 translate-y-24 cursor-pointer hover:bg-amber-100 hover:scale-110 transition-all z-10"
               animate={isHovered ? { x: 2, y: 8 } : { x: 0, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >

@@ -27,7 +27,7 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
         style={{
           background: useTransform(
             [mouseX, mouseY],
-            ([x, y]) => `radial-gradient(400px circle at ${x}px ${y}px, rgba(217, 164, 65, 0.1), transparent 40%)`
+            ([x, y]) => `radial-gradient(400px circle at ${x}px ${y}px, rgba(16, 185, 129, 0.1), transparent 40%)`
           ),
         }}
       />
@@ -69,7 +69,7 @@ export function Features() {
   }, []);
 
   return (
-    <section id="features" className="bg-[#fafafa] px-6 py-32 sm:py-48 relative overflow-hidden">
+    <section id="features" className="bg-[#fafafa] px-6 py-24 sm:py-48 relative overflow-hidden">
       <div className="mx-auto max-w-7xl relative z-10">
         <div className="mb-24 text-center">
           <h2 className="font-lora text-4xl font-medium tracking-tight text-gray-950 sm:text-6xl text-balance">
@@ -77,7 +77,7 @@ export function Features() {
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12 auto-rows-[450px]">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
           
           {/* Thinking Canvas - Wide & Draggable */}
           <motion.div
@@ -85,9 +85,9 @@ export function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="md:col-span-7 h-full"
+            className="md:col-span-7 h-[450px]"
           >
-            <SpotlightCard className="group h-full flex flex-col justify-between rounded-[2.5rem] border border-gray-200 bg-white p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
+            <SpotlightCard className="group h-full flex flex-col justify-between rounded-[2.5rem] border border-gray-200 bg-white p-6 md:p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
               <div className="max-w-md z-20 pointer-events-none">
                 <h3 className="mb-4 font-lora text-3xl font-medium text-gray-950">Thinking Canvas</h3>
                 <p className="text-gray-500 text-lg leading-relaxed">An infinite, fluid workspace that adapts to your mental model. Grab a note and move it around.</p>
@@ -129,9 +129,9 @@ export function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="md:col-span-5 h-full"
+            className="md:col-span-5 h-[450px]"
           >
-            <SpotlightCard className="group h-full flex flex-col justify-between rounded-[2.5rem] border border-gray-200 bg-white p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
+            <SpotlightCard className="group h-full flex flex-col justify-between rounded-[2.5rem] border border-gray-200 bg-white p-6 md:p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
               <div className="z-20 pointer-events-none">
                 <h3 className="mb-4 font-lora text-3xl font-medium text-gray-950">Knowledge Graph</h3>
                 <p className="text-gray-500 text-lg leading-relaxed">See how ideas connect in real-time.</p>
@@ -177,7 +177,7 @@ export function Features() {
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="md:col-span-12 h-64"
           >
-            <SpotlightCard className="group h-full flex flex-col md:flex-row items-center justify-between rounded-[2.5rem] border border-gray-200 bg-white p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
+            <SpotlightCard className="group h-full flex flex-col md:flex-row items-center justify-between rounded-[2.5rem] border border-gray-200 bg-white p-6 md:p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
               <div className="max-w-md z-20 pointer-events-none mb-6 md:mb-0 text-center md:text-left w-full">
                 <h3 className="mb-2 font-lora text-3xl font-medium text-gray-950">Smart Search</h3>
                 <p className="text-gray-500 text-lg leading-relaxed">Find exactly what you meant.</p>
@@ -202,9 +202,9 @@ export function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="md:col-span-4 h-full"
+            className="md:col-span-4 h-[450px]"
           >
-            <SpotlightCard className="group h-full flex flex-col justify-between rounded-[2.5rem] border border-gray-200 bg-white p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
+            <SpotlightCard className="group h-full flex flex-col justify-between rounded-[2.5rem] border border-gray-200 bg-white p-6 md:p-10 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500">
               <div className="z-20 pointer-events-none">
                 <h3 className="mb-4 font-lora text-3xl font-medium text-gray-950">Projects</h3>
                 <p className="text-gray-500 text-lg leading-relaxed">Organize seamlessly.</p>
