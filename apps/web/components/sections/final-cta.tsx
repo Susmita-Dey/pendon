@@ -41,7 +41,7 @@ function MagneticButton({ children, disabled }: { children: React.ReactNode, dis
   );
 }
 
-function WaitlistForm({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => void, status: string }) {
+function WaitlistForm({ onSubmit, status }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, status: string }) {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
