@@ -52,6 +52,7 @@ function WaitlistForm({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => 
       >
         <input 
           type="email" 
+          name="email"
           placeholder="Email address" 
           required 
           disabled={status !== "idle"}
@@ -60,6 +61,7 @@ function WaitlistForm({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => 
           className="relative h-12 w-full bg-transparent px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:opacity-50 border-b border-gray-100 mb-2 caret-[#D9A441]"
         />
         <textarea
+          name="feedback"
           placeholder="What would you build first with Pendon? (Optional)"
           disabled={status !== "idle"}
           rows={2}
@@ -97,12 +99,34 @@ function WaitlistForm({ onSubmit, status }: { onSubmit: (e: React.FormEvent) => 
 export function FinalCTA() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (status !== "idle") return;
+    
     setStatus("submitting");
-    setTimeout(() => {
-      setStatus("success");
-    }, 1200);
+    
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const feedback = formData.get("feedback");
+
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, feedback }),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+      } else {
+        setStatus("idle");
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("idle");
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
