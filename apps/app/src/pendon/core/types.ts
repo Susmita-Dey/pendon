@@ -5,8 +5,14 @@ export interface Camera {
 }
 
 export interface BehaviorDescriptor {
-  id: string;
+  id: 'plain' | 'checklist';
   version: number;
+}
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
 }
 
 export interface PendonNode {
@@ -23,14 +29,37 @@ export interface PendonNode {
   toneId: string;
   objectTypeId: string;
   metadata: Record<string, unknown>;
+  zIndex: number;
+  layer: 'frame' | 'node' | 'overlay';
+}
+
+export interface AlignmentGuide {
+  id: string;
+  type: 'horizontal' | 'vertical';
+  x: number;
+  y: number;
+  length: number;
+}
+
+export interface DistanceIndicator {
+  id: string;
+  type: 'horizontal' | 'vertical';
+  x: number;
+  y: number;
+  distance: number;
 }
 
 export interface WorkspaceState {
   camera: Camera;
   nodes: Record<string, PendonNode>;
-  selectedNodeId: string | null;
+  selectedNodeIds: string[];
   draggingNode: { id: string, type: 'move' | 'resize' } | null;
   editingNodeId: string | null;
+  selectionBox: { startX: number, startY: number, currentX: number, currentY: number } | null;
+  clipboardNodes: PendonNode[];
+  alignmentGuides: AlignmentGuide[];
+  distanceIndicators: DistanceIndicator[];
+  layoutSuggestion: { type: 'align-h' | 'align-v', targetIds: string[], x: number, y: number } | null;
 }
 
 export type Listener = () => void;

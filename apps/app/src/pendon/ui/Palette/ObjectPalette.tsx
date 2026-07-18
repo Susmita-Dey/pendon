@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { engine } from '../../core/engine';
 import { pluginRegistry } from '../../core/registry';
 import { Popover } from './Popover';
+import { Tooltip } from '../Tooltip';
 import type { PendonNode } from '../../core/types';
 
 interface Props {
@@ -19,6 +20,16 @@ export function ObjectPalette({ node, zoom }: Props) {
     return true;
   });
 
+  const getShortcut = (sectionId: string) => {
+    switch (sectionId) {
+      case 'style': return 'S';
+      case 'type': return '/';
+      case 'connections': return 'C';
+      case 'properties': return '...';
+      default: return undefined;
+    }
+  };
+
   const renderPopoverContent = (sectionId: string) => {
     switch (sectionId) {
       case 'style':
@@ -29,7 +40,7 @@ export function ObjectPalette({ node, zoom }: Props) {
                 key={style.id}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  engine.updateNodeStyle(node.id, style.id);
+                  engine.updateSelectedNodesStyle(style.id);
                 }}
                 style={{
                   width: 32,
@@ -55,7 +66,7 @@ export function ObjectPalette({ node, zoom }: Props) {
                 key={type.id}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  engine.updateNodeObjectType(node.id, type.id);
+                  engine.updateSelectedNodesObjectType(type.id);
                 }}
                 style={{
                   padding: '8px 12px',
@@ -84,7 +95,7 @@ export function ObjectPalette({ node, zoom }: Props) {
                 key={tone.id}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  engine.updateNodeTone(node.id, tone.id);
+                  engine.updateSelectedNodesTone(tone.id);
                 }}
                 style={{
                   display: 'flex',
@@ -150,37 +161,39 @@ export function ObjectPalette({ node, zoom }: Props) {
       >
         {sections.map(section => (
         <div key={section.id} style={{ position: 'relative' }}>
-          <button
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              setActiveSection(activeSection === section.id ? null : section.id);
-            }}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              border: 'none',
-              background: activeSection === section.id ? '#f1f5f9' : 'transparent',
-              color: activeSection === section.id ? '#0f172a' : '#64748b',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 16,
-              transition: 'all 0.15s ease',
-            }}
-            title={section.label}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = activeSection === section.id ? '#f1f5f9' : '#f8fafc';
-              (e.currentTarget as HTMLButtonElement).style.color = '#0f172a';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = activeSection === section.id ? '#f1f5f9' : 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = activeSection === section.id ? '#0f172a' : '#64748b';
-            }}
-          >
-            {section.icon}
-          </button>
+          <Tooltip content={section.label} shortcut={getShortcut(section.id)}>
+            <button
+              aria-label={section.label}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setActiveSection(activeSection === section.id ? null : section.id);
+              }}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                border: 'none',
+                background: activeSection === section.id ? '#f1f5f9' : 'transparent',
+                color: activeSection === section.id ? '#0f172a' : '#64748b',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 16,
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = activeSection === section.id ? '#f1f5f9' : '#f8fafc';
+                (e.currentTarget as HTMLButtonElement).style.color = '#0f172a';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = activeSection === section.id ? '#f1f5f9' : 'transparent';
+                (e.currentTarget as HTMLButtonElement).style.color = activeSection === section.id ? '#0f172a' : '#64748b';
+              }}
+            >
+              {section.icon}
+            </button>
+          </Tooltip>
           
           <Popover 
             isOpen={activeSection === section.id} 

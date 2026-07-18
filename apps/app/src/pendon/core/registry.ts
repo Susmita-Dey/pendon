@@ -77,7 +77,7 @@ pluginRegistry.registerObjectType({ id: 'question', label: 'Question', fontFamil
 pluginRegistry.registerObjectType({ id: 'decision', label: 'Decision', fontFamily: '"IBM Plex Sans", sans-serif', fontWeight: 600, textAlign: 'center' });
 pluginRegistry.registerObjectType({ id: 'quote', label: 'Quote', fontFamily: '"Newsreader", serif', fontWeight: 400, textAlign: 'left' });
 pluginRegistry.registerObjectType({ id: 'callout', label: 'Callout', fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 500, textAlign: 'left' });
-
+pluginRegistry.registerObjectType({ id: 'frame', label: 'Frame', fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 600, textAlign: 'left' });
 pluginRegistry.registerPaletteSection({ id: 'style', label: 'Style', icon: '🎨' });
 pluginRegistry.registerPaletteSection({ id: 'type', label: 'Object Type', icon: '◇' });
 pluginRegistry.registerPaletteSection({ id: 'tone', label: 'Tone', icon: '✨' });

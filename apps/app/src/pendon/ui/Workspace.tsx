@@ -3,16 +3,28 @@ import { engine } from '../core/engine';
 import { NodeView } from './NodeView';
 import { ObjectPalette } from './Palette/ObjectPalette';
 import { screenToWorkspace } from '../core/viewport/math';
+import type { AlignmentGuide, DistanceIndicator } from '../core/types';
+
+const LAYER_ORDER = {
+  'frame': 0,
+  'node': 1,
+  'overlay': 2,
+};
 
 export function Workspace() {
   const [state, setState] = useState(engine.getState());
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanning = useRef(false);
+  const isSpacePressed = useRef(false);
+  
+  // Marquee threshold
+  const dragStartPos = useRef<{x: number, y: number} | null>(null);
+  const [isMarqueeActive, setIsMarqueeActive] = useState(false);
 
   // Subscribe to engine state
   useEffect(() => {
     return engine.subscribe(() => {
-      setState({ ...engine.getState() }); // Shallow clone triggers re-render
+      setState({ ...engine.getState() });
     });
   }, []);
 
@@ -24,10 +36,8 @@ export function Workspace() {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (e.ctrlKey || e.metaKey) {
-        // Pinch-to-zoom or Ctrl+Scroll
         engine.zoom(e.deltaY, e.clientX, e.clientY);
       } else {
-        // Trackpad panning
         engine.pan(-e.deltaX, -e.deltaY);
       }
     };
@@ -36,51 +46,135 @@ export function Workspace() {
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
-  // Global Keyboard listener for Deletion & History
+  // Global Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
 
-      if (!isTyping && (e.key === 'Backspace' || e.key === 'Delete')) {
-        engine.deleteSelectedNode();
+      if (e.code === 'Space' && !isTyping) {
+        e.preventDefault();
+        isSpacePressed.current = true;
+        if (containerRef.current) {
+          containerRef.current.style.cursor = 'grab';
+        }
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        if (e.shiftKey) {
-          engine.redo();
-        } else {
-          engine.undo();
+      if (!isTyping) {
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+          engine.deleteSelectedNodes();
+        }
+        
+        if (e.ctrlKey || e.metaKey) {
+          switch (e.key.toLowerCase()) {
+            case 'z':
+              if (e.shiftKey) engine.redo();
+              else engine.undo();
+              e.preventDefault();
+              break;
+            case 'd':
+              engine.duplicateSelectedNodes();
+              e.preventDefault();
+              break;
+            case 'c':
+              engine.copySelectedNodes();
+              break;
+            case 'x':
+              engine.cutSelectedNodes();
+              break;
+            case 'v':
+              engine.pasteNodes();
+              break;
+          }
+        } else if (e.key.startsWith('Arrow')) {
+          e.preventDefault();
+          const amount = e.shiftKey ? 50 : 10;
+          let dx = 0, dy = 0;
+          if (e.key === 'ArrowUp') dy = -amount;
+          if (e.key === 'ArrowDown') dy = amount;
+          if (e.key === 'ArrowLeft') dx = -amount;
+          if (e.key === 'ArrowRight') dx = amount;
+          engine.nudgeSelectedNodes(dx, dy);
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        isSpacePressed.current = false;
+        if (containerRef.current) {
+          containerRef.current.style.cursor = 'default';
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    // Only pan on left-click background or middle-click
-    if (e.button === 0 || e.button === 1) {
+    const isMiddleClick = e.button === 1;
+    const isLeftClick = e.button === 0;
+
+    if (isSpacePressed.current || isMiddleClick) {
       isPanning.current = true;
-      engine.selectNode(null);
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      if (containerRef.current) containerRef.current.style.cursor = 'grabbing';
+    } else if (isLeftClick) {
+      // Start potential marquee
+      dragStartPos.current = { x: e.clientX, y: e.clientY };
     }
+    
+    // Deselect if not shift/ctrl clicking and not panning
+    if (!isSpacePressed.current && !isMiddleClick && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+       engine.selectNode(null);
+    }
+    
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (isPanning.current) {
       engine.pan(e.movementX, e.movementY);
+    } else if (dragStartPos.current) {
+      // Check drag threshold for marquee
+      const dx = e.clientX - dragStartPos.current.x;
+      const dy = e.clientY - dragStartPos.current.y;
+      if (!isMarqueeActive && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+        setIsMarqueeActive(true);
+        const worldStart = screenToWorkspace(dragStartPos.current.x, dragStartPos.current.y, state.camera);
+        engine.startSelectionBox(worldStart.x, worldStart.y);
+      }
+      
+      if (isMarqueeActive) {
+        const worldCurrent = screenToWorkspace(e.clientX, e.clientY, state.camera);
+        engine.updateSelectionBox(worldCurrent.x, worldCurrent.y);
+      }
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
     isPanning.current = false;
+    dragStartPos.current = null;
+    
+    if (isSpacePressed.current && containerRef.current) {
+      containerRef.current.style.cursor = 'grab';
+    } else if (containerRef.current) {
+      containerRef.current.style.cursor = 'default';
+    }
+
+    if (isMarqueeActive) {
+      setIsMarqueeActive(false);
+      engine.endSelectionBox();
+    }
+    
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    // Only spawn if clicking on the abstract workspace
     if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('workspace-world')) {
       const world = screenToWorkspace(e.clientX, e.clientY, state.camera);
       engine.spawnNode(world.x, world.y);
@@ -88,6 +182,36 @@ export function Workspace() {
   };
 
   const { x, y, z } = state.camera;
+  
+  // Render Marquee Box
+  let marqueeStyle: React.CSSProperties = { display: 'none' };
+  if (isMarqueeActive && state.selectionBox) {
+    const { startX, startY, currentX, currentY } = state.selectionBox;
+    const left = Math.min(startX, currentX);
+    const top = Math.min(startY, currentY);
+    const width = Math.abs(currentX - startX);
+    const height = Math.abs(currentY - startY);
+    marqueeStyle = {
+      position: 'absolute',
+      left,
+      top,
+      width,
+      height,
+      border: '1px solid #3b82f6',
+      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+      pointerEvents: 'none',
+      zIndex: 9999,
+    };
+  }
+
+  const nodesList = Object.values(state.nodes).sort((a, b) => {
+    if (LAYER_ORDER[a.layer] !== LAYER_ORDER[b.layer]) {
+       return LAYER_ORDER[a.layer] - LAYER_ORDER[b.layer];
+    }
+    return a.zIndex - b.zIndex;
+  });
+  
+  const isEmpty = nodesList.length === 0;
 
   return (
     <div
@@ -96,10 +220,9 @@ export function Workspace() {
         position: 'fixed',
         inset: 0,
         overflow: 'hidden',
-        background: '#f8fafc', // Very subtle calm gray/blue background
+        background: '#ffffff', // Calmer, less noisy background (pure white/invisible)
         touchAction: 'none',
         userSelect: 'none',
-        cursor: isPanning.current ? 'grabbing' : 'default',
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -107,6 +230,24 @@ export function Workspace() {
       onDoubleClick={handleDoubleClick}
       onContextMenu={e => e.preventDefault()}
     >
+      {isEmpty && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          color: '#94a3b8',
+          fontFamily: 'sans-serif',
+          textAlign: 'center',
+          pointerEvents: 'none',
+          animation: 'fade-in 1s ease-in-out',
+        }}>
+          <p style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Double-click anywhere to create a thought.</p>
+          <p style={{ fontSize: '0.875rem', opacity: 0.7 }}>Press Space + Drag to move around.</p>
+          <p style={{ fontSize: '0.875rem', opacity: 0.7 }}>Press Ctrl/Cmd + K for commands.</p>
+        </div>
+      )}
+      
       <div
         className="workspace-world"
         style={{
@@ -119,15 +260,8 @@ export function Workspace() {
           transform: `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`,
         }}
       >
-        {/* Debug Origin Crosshair */}
-        <div style={{ position: 'absolute', left: -50, top: -1, width: 100, height: 2, background: '#cbd5e1' }} />
-        <div style={{ position: 'absolute', left: -1, top: -50, width: 2, height: 100, background: '#cbd5e1' }} />
-        <span style={{ position: 'absolute', left: 8, top: 8, color: '#cbd5e1', fontFamily: 'monospace', fontSize: 12 }}>
-          (0, 0)
-        </span>
-        
         {/* Nodes */}
-        {Object.values(state.nodes).map(node => (
+        {nodesList.map(node => (
           <NodeView 
             key={node.id} 
             node={node} 
@@ -136,9 +270,58 @@ export function Workspace() {
           />
         ))}
 
-        {/* Object Palette */}
-        {state.selectedNodeId && state.nodes[state.selectedNodeId] && !state.draggingNode && (
-          <ObjectPalette node={state.nodes[state.selectedNodeId]} zoom={z} />
+        {/* Alignment Guides */}
+        {state.alignmentGuides.map((guide: AlignmentGuide) => (
+           <div 
+             key={guide.id}
+             style={{
+               position: 'absolute',
+               left: guide.type === 'vertical' ? guide.x : guide.x,
+               top: guide.type === 'vertical' ? guide.y : guide.y,
+               width: guide.type === 'vertical' ? 1 : guide.length,
+               height: guide.type === 'vertical' ? guide.length : 1,
+               background: '#3b82f6',
+               opacity: 0.4,
+               pointerEvents: 'none',
+               zIndex: 9998,
+             }}
+           />
+        ))}
+
+        {/* Marquee */}
+        <div style={marqueeStyle} />
+
+        {/* Object Palette - Render for first selected node */}
+        {state.selectedNodeIds.length > 0 && !state.draggingNode && !state.editingNodeId && !isMarqueeActive && state.nodes[state.selectedNodeIds[0]] && (
+          <ObjectPalette node={state.nodes[state.selectedNodeIds[0]]} zoom={z} />
+        )}
+        
+        {/* Auto Layout Suggestion */}
+        {state.layoutSuggestion && !state.draggingNode && (
+          <div
+            onPointerDown={(e) => {
+               e.stopPropagation();
+               engine.applyLayoutSuggestion();
+            }}
+            style={{
+               position: 'absolute',
+               left: state.layoutSuggestion.x,
+               top: state.layoutSuggestion.y,
+               transform: `translate(-50%, -50%) scale(${1/z})`,
+               background: '#1e293b',
+               color: '#fff',
+               padding: '4px 12px',
+               borderRadius: 24,
+               fontSize: 12,
+               fontWeight: 500,
+               cursor: 'pointer',
+               boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+               zIndex: 9999,
+               animation: 'palette-enter 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            }}
+          >
+            Align
+          </div>
         )}
       </div>
     </div>
