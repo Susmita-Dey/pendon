@@ -1,45 +1,40 @@
 import { DefaultContextMenu, TldrawUiMenuGroup, TldrawUiMenuItem, useEditor } from 'tldraw';
-import { registry } from '../engine/registry';
+import { registry } from '../core/registry/registry';
+import { TldrawRuntime } from '../canvas/tldraw/TldrawRuntime';
+
 
 export function PendonContextMenu(props: any) {
   const editor = useEditor();
-  const selectedShapes = editor.getSelectedShapes();
+  const runtime = new TldrawRuntime(editor);
+  
+  const selectedNodes = runtime.getSelectedNodes();
 
-  if (selectedShapes.length === 1 && (selectedShapes[0].type as string) === 'pendon') {
-    const shape = selectedShapes[0] as any;
-    const currentBehaviorId = shape.props.behavior.id;
+  if (selectedNodes.length === 1) {
+    const node = selectedNodes[0];
+    const currentBehaviorId = node.behavior.id;
     
-    // Get all behaviors except the currently active one
-    const availableBehaviors = registry.getAll().filter(b => b.id !== currentBehaviorId);
+    const availablePlugins = registry.getAll().filter(b => b.id !== currentBehaviorId);
 
     return (
       <DefaultContextMenu {...props}>
-        {availableBehaviors.length > 0 && (
+        {availablePlugins.length > 0 && (
           <TldrawUiMenuGroup id="pendon-morph">
-            {availableBehaviors.map(behavior => (
+            {availablePlugins.map(plugin => (
               <TldrawUiMenuItem
-                key={behavior.id}
-                id={`morph-to-${behavior.id}`}
-                label={`Morph to ${behavior.metadata.label}`}
+                key={plugin.id}
+                id={`morph-to-${plugin.id}`}
+                label={`Morph to ${plugin.metadata.label}`}
                 onSelect={() => {
-                  let newState = behavior.defaultState();
+                  let newState = plugin.logic.defaultState();
                   
-                  if (behavior.convertFrom) {
-                    newState = behavior.convertFrom({
-                      previousBehaviorId: currentBehaviorId,
-                      previousState: shape.props.behaviorState,
-                      editor
-                    });
+                  if (plugin.logic.convertFrom) {
+                    newState = plugin.logic.convertFrom(currentBehaviorId, node.behaviorState);
                   }
                   
-                  editor.updateShape({
-                    id: shape.id,
-                    type: 'pendon',
-                    props: {
-                      behavior: { id: behavior.id, version: behavior.version },
-                      behaviorState: newState
-                    }
-                  } as any);
+                  runtime.updateNode(node.id, {
+                    behavior: { id: plugin.id, version: plugin.version },
+                    behaviorState: newState
+                  });
                 }}
               />
             ))}
@@ -49,6 +44,5 @@ export function PendonContextMenu(props: any) {
     );
   }
 
-  // Fallback to the default context menu for all other shapes
   return <DefaultContextMenu {...props} />;
 }

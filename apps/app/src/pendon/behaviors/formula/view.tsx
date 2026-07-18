@@ -1,16 +1,19 @@
-import { HTMLContainer } from 'tldraw';
-import type { BehaviorRenderProps } from '../../engine/registry';
+import type { BehaviorViewProps } from '../../core/behavior/types';
 import type { FormulaState } from './types';
 
-// We extend the state to accept a derived total for rendering
-interface FormulaRenderState extends FormulaState {
-  total: number;
+
+function calculateTotal(text: string): number {
+  const numbers = text.match(/-?\d+(\.\d+)?/g);
+  if (!numbers) return 0;
+  return numbers.reduce((sum, num) => sum + parseFloat(num), 0);
 }
 
-export function FormulaRender({ shape, state, isEditing, updateText }: BehaviorRenderProps<FormulaRenderState>) {
+export function FormulaView(props: BehaviorViewProps<FormulaState>) {
+  const { node, isEditing, updateText } = props;
+  const total = calculateTotal(node.text);
+  
   return (
-    <HTMLContainer
-      id={shape.id}
+    <div
       style={{
         width: '100%',
         height: '100%',
@@ -24,6 +27,7 @@ export function FormulaRender({ shape, state, isEditing, updateText }: BehaviorR
         borderRadius: 8,
         boxShadow: '0 4px 6px rgba(59,130,246,0.1)',
         pointerEvents: 'all',
+        overflow: 'hidden',
       }}
     >
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -42,14 +46,14 @@ export function FormulaRender({ shape, state, isEditing, updateText }: BehaviorR
               background: 'transparent',
               fontFamily: 'monospace',
             }}
-            value={shape.props.text}
+            value={node.text}
             onChange={(e) => updateText(e.target.value)}
             autoFocus
             onPointerDown={(e) => e.stopPropagation()}
           />
         ) : (
           <div style={{ whiteSpace: 'pre-wrap', fontSize: 20, overflow: 'auto', fontFamily: 'monospace' }}>
-            {shape.props.text || 'Enter numbers...'}
+            {node.text || 'Enter numbers...'}
           </div>
         )}
       </div>
@@ -62,8 +66,8 @@ export function FormulaRender({ shape, state, isEditing, updateText }: BehaviorR
         textAlign: 'right',
         color: '#1e40af'
       }}>
-        Total: {state.total}
+        Total: {total}
       </div>
-    </HTMLContainer>
+    </div>
   );
 }

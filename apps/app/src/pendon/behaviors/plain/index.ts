@@ -1,17 +1,22 @@
-import type { PendonBehavior } from '../../engine/registry';
+import type { BehaviorPlugin } from '../../core/behavior/types';
 import type { PlainState } from './types';
-import { PlainRender } from './render';
+import { logic } from './logic';
+import { PlainView } from './view';
 
-export const plainBehavior: PendonBehavior<PlainState> = {
+export const plainBehavior: BehaviorPlugin<PlainState> = {
   id: 'plain',
   version: 1,
   metadata: {
     label: 'Plain Note',
     description: 'A simple text note.',
   },
-  defaultState: () => ({ _brand: 'plain' }),
-  validate: (state: unknown): state is PlainState => {
-    return typeof state === 'object' && state !== null && '_brand' in state && (state as any)._brand === 'plain';
+  capabilities: {
+    editable: true,
+    resizable: true,
+    supportsChildren: false,
+    supportsConnections: true,
+    searchable: true,
   },
-  render: PlainRender,
+  logic,
+  view: PlainView,
 };

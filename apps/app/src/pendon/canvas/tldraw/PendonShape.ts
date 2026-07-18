@@ -1,9 +1,5 @@
 import { type TLBaseShape } from 'tldraw';
-
-export type BehaviorDescriptor = {
-  id: string;
-  version: number;
-};
+import type { BehaviorDescriptor } from '../../core/node/types';
 
 export type PendonShapeProps = {
   text: string;
