@@ -1,12 +1,8 @@
-import { Workspace } from './pendon/ui/Workspace'
+import { AppLayout } from './pendon/ui/AppLayout'
 import './index.css'
 
 function App() {
-  return (
-    <div style={{ position: 'fixed', inset: 0 }}>
-      <Workspace />
-    </div>
-  )
+  return <AppLayout />
 }
 
 export default App;

@@ -18,6 +18,59 @@ Tomorrow:
 
 ---
 
+# The Pendon Manifesto
+
+Pendon exists to remove the distance between an idea and a useful object.
+
+People should never wonder which tool to use.
+
+They should simply think.
+
+Type.
+
+Draw.
+
+Paste.
+
+Speak.
+
+Sketch.
+
+Pendon understands intention.
+
+Every object starts simple.
+
+Every object can evolve.
+
+Nothing loses its identity.
+
+Magic is never decoration.
+
+Magic must save time.
+
+Every interaction should be discoverable.
+
+Every feature should feel inevitable once found.
+
+The interface should disappear.
+
+The thinking should remain.
+
+If a feature is clever but not useful,
+we don't build it.
+
+If a feature is useful but forgettable,
+we rethink it.
+
+Pendon should become the place people open
+when they don't yet know what they're building.
+
+Start anywhere.
+
+End anywhere.
+
+---
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.

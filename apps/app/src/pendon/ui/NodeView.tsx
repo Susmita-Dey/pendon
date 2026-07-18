@@ -10,9 +10,11 @@ interface Props {
   node: PendonNode;
   isEditing: boolean;
   isDragging: boolean;
+  isFaded?: boolean;
+  zenMode?: boolean;
 }
 
-export function NodeView({ node, isEditing, isDragging }: Props) {
+export function NodeView({ node, isEditing, isDragging, isFaded = false, zenMode = false }: Props) {
   const [isHovered, setIsHovered] = useState(false);
   const [isResizeHovered, setIsResizeHovered] = useState(false);
 
@@ -122,15 +124,40 @@ export function NodeView({ node, isEditing, isDragging }: Props) {
     }
   }
 
-  // Cursor logic: Text over the content, grab/grabbing over the padding
+  // Fade logic for Zen Mode / Focus
+  let baseOpacity = 1;
+  if (isFaded) {
+    baseOpacity = zenMode ? 0 : 0.6;
+  }
+  // Soft creation animation
+  const isNew = node.createdAt && (Date.now() - node.createdAt < 500);
+
+  // Ink discovering paper logic (The Signature Interaction)
+  let displayWidth = node.width;
+  let displayHeight = node.height;
+  let displayPadding: string | number = isFrame ? '32px 32px' : 32;
+
+  if (isPlain && node.text.length < 12) {
+    const progress = node.text.length === 0 ? 0 : Math.max(0.2, node.text.length / 12);
+    displayWidth = 24 + (node.width - 24) * progress;
+    displayHeight = 36 + (node.height - 36) * progress;
+    displayPadding = 4 + (32 - 4) * progress;
+    if (isEditing) {
+      background = `rgba(255, 255, 255, ${progress})`;
+      shadow = `0 ${12 * progress}px ${24 * progress}px rgba(0, 0, 0, ${0.08 * progress})`;
+      border = progress === 0 ? 'none' : `1px solid rgba(0,0,0,${0.1 * progress})`;
+    }
+  }
+
   const cursorStyle = isEditing ? 'text' : (isDragging ? 'grabbing' : (isHovered ? 'grab' : 'default'));
   
   const springTransition = isDragging 
     ? 'none' 
-    : 'top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s, border 0.25s, background 0.25s';
+    : `top ${motion.spring.medium}, left ${motion.spring.medium}, width ${motion.spring.fast}, height ${motion.spring.fast}, padding ${motion.spring.fast}, transform ${motion.spring.fast}, box-shadow ${motion.spring.fast}, border ${motion.spring.fast}, background ${motion.spring.fast}, opacity ${motion.duration.medium} ${motion.ease.inOut}`;
 
   return (
     <div
+      data-node-id={node.id}
       role="button"
       tabIndex={0}
       aria-label={`Thought: ${node.text || 'Empty'}`}
@@ -145,9 +172,9 @@ export function NodeView({ node, isEditing, isDragging }: Props) {
         position: 'absolute',
         top: node.y,
         left: node.x,
-        width: node.width,
-        height: node.height,
-        padding: isFrame ? '32px 32px' : 32,
+        width: displayWidth,
+        height: displayHeight,
+        padding: displayPadding,
         boxSizing: 'border-box',
         display: 'flex',
         alignItems: isFrame ? 'flex-start' : 'center',
@@ -156,8 +183,10 @@ export function NodeView({ node, isEditing, isDragging }: Props) {
         border,
         borderRadius: isFrame ? 24 : 16,
         boxShadow: shadow,
+        opacity: baseOpacity,
         transform: `scale(${scale})`,
         transition: springTransition,
+        animation: isNew ? `scale-up ${motion.spring.medium}` : 'none',
         WebkitFontSmoothing: 'antialiased',
         fontFamily: objectTypeDef.fontFamily,
         fontWeight: objectTypeDef.fontWeight,
@@ -165,12 +194,20 @@ export function NodeView({ node, isEditing, isDragging }: Props) {
         color: textColor,
         lineHeight: 1.6,
         letterSpacing: '-0.01em',
-        pointerEvents: 'all',
+        pointerEvents: baseOpacity === 0 ? 'none' : 'all',
         userSelect: 'none',
         cursor: cursorStyle,
         outline: 'none',
       }}
     >
+      <style>
+        {`
+          @keyframes scale-up {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        `}
+      </style>
       {isPlain ? (
         isEditing ? (
           <textarea
@@ -198,7 +235,7 @@ export function NodeView({ node, isEditing, isDragging }: Props) {
               margin: 0,
               cursor: 'text',
             }}
-            placeholder="Start typing..."
+            placeholder={isFrame ? 'Name this space' : "What's on your mind?"}
           />
         ) : (
           <span
@@ -215,7 +252,7 @@ export function NodeView({ node, isEditing, isDragging }: Props) {
               opacity: isFrame && !node.text ? 0 : 1, // Hide placeholder for frames unless hovered
             }}
           >
-            {node.text || (isFrame ? 'Frame Title' : 'Start typing...')}
+            {node.text || (isFrame ? 'Name this space' : "What's on your mind?")}
           </span>
         )
       ) : isChecklist ? (

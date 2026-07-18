@@ -18,6 +18,10 @@ export class PendonEngine {
       alignmentGuides: [],
       distanceIndicators: [],
       layoutSuggestion: null,
+      zenMode: false,
+      activeTool: 'pointer',
+      activeExpression: null,
+      activeStroke: null,
       nodes: {
         'n1': {
           id: 'n1',
@@ -74,6 +78,18 @@ export class PendonEngine {
       this.state.layoutSuggestion = null;
       this.notify();
     }
+  }
+
+  toggleZenMode() {
+    this.state.zenMode = !this.state.zenMode;
+    this.notify();
+  }
+
+  centerCamera() {
+    // Basic centering logic to return to origin, could be improved to frame bounds later
+    this.state.camera.x = window.innerWidth / 2;
+    this.state.camera.y = window.innerHeight / 2;
+    this.notify();
   }
 
   // --- State Access ---
@@ -378,27 +394,111 @@ export class PendonEngine {
     return max;
   }
 
-  spawnNode(worldX: number, worldY: number) {
+  spawnNode(x: number, y: number) {
     const id = `node-${Date.now()}`;
+    const highestZ = Math.max(0, ...Object.values(this.state.nodes).map(n => n.zIndex));
+    
     this.state.nodes[id] = {
       id,
-      x: worldX - 160,
-      y: worldY - 100,
-      width: 320,
-      height: 200,
+      x: x - 150, // Center relative to spawn point
+      y: y - 50,
+      width: 300,
+      height: 100,
       text: '',
-      selected: false,
-      behavior: { id: 'plain', version: 1 },
-      behaviorState: {},
+      objectTypeId: 'note',
       styleId: 'paper',
       toneId: 'neutral',
-      objectTypeId: 'note',
-      metadata: {},
-      zIndex: this.getMaxZIndex('node') + 1,
+      selected: true,
       layer: 'node',
+      zIndex: highestZ + 1,
+      behavior: { id: 'plain', version: 1 },
+      createdAt: Date.now(),
     };
+    this.state.selectedNodeIds = [id];
+    this.state.editingNodeId = id;
     this.pushHistory();
-    this.setEditingNode(id);
+    this.notify();
+    return id;
+  }
+
+  // --- Expressions ---
+  beginExpression(x: number, y: number) {
+    this.state.activeExpression = { x, y };
+    this.state.editingNodeId = null;
+    this.state.selectedNodeIds = [];
+    this.notify();
+  }
+
+  commitExpression(text: string, x: number, y: number) {
+    this.state.activeExpression = null;
+    if (text.trim() === '') {
+      this.notify();
+      return null;
+    }
+    const id = `node-${Date.now()}`;
+    const highestZ = Math.max(0, ...Object.values(this.state.nodes).map(n => n.zIndex));
+    
+    this.state.nodes[id] = {
+      id,
+      x: x, // Not centered, exact caret start position
+      y: y,
+      width: 300,
+      height: 100,
+      text: text,
+      objectTypeId: 'note',
+      styleId: 'paper',
+      toneId: 'neutral',
+      selected: true,
+      layer: 'node',
+      zIndex: highestZ + 1,
+      behavior: { id: 'plain', version: 1 },
+      createdAt: Date.now(), // Marks it for emerging animation
+    };
+    this.state.selectedNodeIds = [id];
+    this.state.editingNodeId = id;
+    this.pushHistory();
+    this.notify();
+    return id;
+  }
+
+  cancelExpression() {
+    this.state.activeExpression = null;
+    this.notify();
+  }
+
+  setActiveTool(tool: 'pointer' | 'express' | 'frame' | 'connect') {
+    this.state.activeTool = tool;
+    this.notify();
+  }
+
+  flyToNode(id: string) {
+    const node = this.state.nodes[id];
+    if (node) {
+       this.state.camera.x = window.innerWidth / 2 - (node.x + node.width / 2) * this.state.camera.z;
+       this.state.camera.y = window.innerHeight / 2 - (node.y + node.height / 2) * this.state.camera.z;
+       this.state.selectedNodeIds = [id];
+       this.notify();
+    }
+  }
+
+  // --- Strokes ---
+  beginStroke(x: number, y: number) {
+    this.state.activeStroke = { id: `stroke-${Date.now()}`, points: [{x, y}] };
+    this.notify();
+  }
+
+  updateStroke(x: number, y: number) {
+    if (this.state.activeStroke) {
+      this.state.activeStroke.points.push({x, y});
+      this.notify();
+    }
+  }
+
+  endStroke() {
+    const stroke = this.state.activeStroke;
+    this.state.activeStroke = null;
+    this.notify();
+    return stroke;
   }
 
   deleteSelectedNodes() {

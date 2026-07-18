@@ -24,13 +24,14 @@ export interface PendonNode {
   text: string;
   selected: boolean;
   behavior: BehaviorDescriptor;
-  behaviorState: unknown;
+  behaviorState?: unknown;
   styleId: string;
   toneId: string;
   objectTypeId: string;
   metadata: Record<string, unknown>;
   zIndex: number;
   layer: 'frame' | 'node' | 'overlay';
+  createdAt?: number;
 }
 
 export interface AlignmentGuide {
@@ -60,6 +61,10 @@ export interface WorkspaceState {
   alignmentGuides: AlignmentGuide[];
   distanceIndicators: DistanceIndicator[];
   layoutSuggestion: { type: 'align-h' | 'align-v', targetIds: string[], x: number, y: number } | null;
+  zenMode: boolean;
+  activeTool: 'pointer' | 'express' | 'frame' | 'connect';
+  activeExpression: { x: number; y: number } | null;
+  activeStroke: { id: string; points: {x: number, y: number}[] } | null;
 }
 
 export type Listener = () => void;

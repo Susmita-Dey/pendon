@@ -27,7 +27,7 @@ export interface PaletteSectionDef {
   label: string;
   icon: string;
   // If undefined, section is always visible
-  isVisible?: (behaviorId: string) => boolean;
+  isVisible?: (node: import('./types').PendonNode) => boolean;
 }
 
 class Registry {
@@ -78,9 +78,22 @@ pluginRegistry.registerObjectType({ id: 'decision', label: 'Decision', fontFamil
 pluginRegistry.registerObjectType({ id: 'quote', label: 'Quote', fontFamily: '"Newsreader", serif', fontWeight: 400, textAlign: 'left' });
 pluginRegistry.registerObjectType({ id: 'callout', label: 'Callout', fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 500, textAlign: 'left' });
 pluginRegistry.registerObjectType({ id: 'frame', label: 'Frame', fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 600, textAlign: 'left' });
-pluginRegistry.registerPaletteSection({ id: 'style', label: 'Style', icon: '🎨' });
-pluginRegistry.registerPaletteSection({ id: 'type', label: 'Object Type', icon: '◇' });
-pluginRegistry.registerPaletteSection({ id: 'tone', label: 'Tone', icon: '✨' });
-pluginRegistry.registerPaletteSection({ id: 'behavior', label: 'Behavior', icon: '⚡' });
-pluginRegistry.registerPaletteSection({ id: 'connections', label: 'Connections', icon: '🔗' });
-pluginRegistry.registerPaletteSection({ id: 'properties', label: 'Properties', icon: '•••' });
+pluginRegistry.registerPaletteSection({ id: 'style', label: 'Appearance', icon: '🎨' });
+pluginRegistry.registerPaletteSection({ 
+  id: 'type', 
+  label: 'Transform', 
+  icon: '⚡',
+  isVisible: (node) => node.objectTypeId !== 'frame' && node.behavior.id !== 'checklist'
+});
+pluginRegistry.registerPaletteSection({ 
+  id: 'layout', 
+  label: 'Layout', 
+  icon: '◫',
+  isVisible: (node) => node.objectTypeId === 'frame'
+});
+pluginRegistry.registerPaletteSection({ 
+  id: 'checklist_opts', 
+  label: 'Checklist Options', 
+  icon: '✓',
+  isVisible: (node) => node.behavior.id === 'checklist'
+});

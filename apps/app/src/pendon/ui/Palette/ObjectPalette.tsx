@@ -15,7 +15,7 @@ export function ObjectPalette({ node, zoom }: Props) {
 
   const sections = pluginRegistry.getPaletteSections().filter(section => {
     if (section.isVisible) {
-      return section.isVisible(node.behavior.id);
+      return section.isVisible(node);
     }
     return true;
   });
@@ -23,9 +23,9 @@ export function ObjectPalette({ node, zoom }: Props) {
   const getShortcut = (sectionId: string) => {
     switch (sectionId) {
       case 'style': return 'S';
-      case 'type': return '/';
-      case 'connections': return 'C';
-      case 'properties': return '...';
+      case 'type': return 'T';
+      case 'layout': return 'L';
+      case 'checklist_opts': return 'C';
       default: return undefined;
     }
   };
@@ -88,40 +88,10 @@ export function ObjectPalette({ node, zoom }: Props) {
         );
 
       case 'tone':
-        return (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {pluginRegistry.getTones().map(tone => (
-              <button
-                key={tone.id}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  engine.updateSelectedNodesTone(tone.id);
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '6px 10px',
-                  borderRadius: 6,
-                  border: '1px solid',
-                  borderColor: node.toneId === tone.id ? (tone.accentColor || '#3b82f6') : 'transparent',
-                  background: node.toneId === tone.id ? '#f8fafc' : 'transparent',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: '#334155',
-                }}
-              >
-                {tone.icon && <span>{tone.icon}</span>}
-                {tone.label}
-              </button>
-            ))}
-          </div>
-        );
+        return null; // Tones removed for now based on simplicity request, or just not requested.
 
-      case 'behavior':
-      case 'connections':
-      case 'properties':
+      case 'layout':
+      case 'checklist_opts':
         return (
           <div style={{ fontSize: 13, color: '#94a3b8', padding: 12, textAlign: 'center', fontStyle: 'italic' }}>
             Available in future extensions
