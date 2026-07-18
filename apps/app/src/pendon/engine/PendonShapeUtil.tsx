@@ -2,9 +2,11 @@ import { ShapeUtil, Rectangle2d, T, type RecordProps } from 'tldraw';
 import type { PendonShape, PendonShapeProps } from './PendonShape';
 import { registry } from './registry';
 import { plainBehavior } from '../behaviors/plain';
+import { formulaBehavior } from '../behaviors/formula';
 
-// Register the default behavior
+// Register behaviors
 registry.register(plainBehavior);
+registry.register(formulaBehavior);
 
 export class PendonShapeUtil extends ShapeUtil<any> {
   static type = 'pendon' as const;
