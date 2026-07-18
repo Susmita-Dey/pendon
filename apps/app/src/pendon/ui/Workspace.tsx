@@ -130,7 +130,8 @@ export function Workspace() {
           <NodeView 
             key={node.id} 
             node={node} 
-            isEditing={state.editingNodeId === node.id} 
+            isEditing={state.editingNodeId === node.id}
+            isDragging={state.draggingNode?.id === node.id}
           />
         ))}
       </div>
