@@ -23,6 +23,9 @@ export class PendonEngine {
           selected: false,
           behavior: { id: 'plain', version: 1 },
           behaviorState: {},
+          styleId: 'paper',
+          toneId: 'neutral',
+          objectTypeId: 'note',
           metadata: {},
         }
       },
@@ -156,6 +159,30 @@ export class PendonEngine {
     }
   }
 
+  updateNodeStyle(id: string, styleId: string) {
+    if (this.state.nodes[id] && this.state.nodes[id].styleId !== styleId) {
+      this.state.nodes[id].styleId = styleId;
+      this.pushHistory();
+      this.notify();
+    }
+  }
+
+  updateNodeTone(id: string, toneId: string) {
+    if (this.state.nodes[id] && this.state.nodes[id].toneId !== toneId) {
+      this.state.nodes[id].toneId = toneId;
+      this.pushHistory();
+      this.notify();
+    }
+  }
+
+  updateNodeObjectType(id: string, objectTypeId: string) {
+    if (this.state.nodes[id] && this.state.nodes[id].objectTypeId !== objectTypeId) {
+      this.state.nodes[id].objectTypeId = objectTypeId;
+      this.pushHistory();
+      this.notify();
+    }
+  }
+
   spawnNode(worldX: number, worldY: number) {
     const id = `node-${Date.now()}`;
     this.state.nodes[id] = {
@@ -168,6 +195,9 @@ export class PendonEngine {
       selected: false,
       behavior: { id: 'plain', version: 1 },
       behaviorState: {},
+      styleId: 'paper',
+      toneId: 'neutral',
+      objectTypeId: 'note',
       metadata: {},
     };
     this.pushHistory();

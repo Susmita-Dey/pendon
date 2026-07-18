@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { engine } from '../core/engine';
 import { NodeView } from './NodeView';
+import { ObjectPalette } from './Palette/ObjectPalette';
 import { screenToWorkspace } from '../core/viewport/math';
 
 export function Workspace() {
@@ -134,6 +135,11 @@ export function Workspace() {
             isDragging={state.draggingNode?.id === node.id}
           />
         ))}
+
+        {/* Object Palette */}
+        {state.selectedNodeId && state.nodes[state.selectedNodeId] && !state.draggingNode && (
+          <ObjectPalette node={state.nodes[state.selectedNodeId]} zoom={z} />
+        )}
       </div>
     </div>
   );

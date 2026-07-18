@@ -19,6 +19,9 @@ export interface PendonNode {
   selected: boolean;
   behavior: BehaviorDescriptor;
   behaviorState: unknown;
+  styleId: string;
+  toneId: string;
+  objectTypeId: string;
   metadata: Record<string, unknown>;
 }
 
