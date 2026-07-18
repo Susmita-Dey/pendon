@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactElement } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-export function Journey() {
+export function Journey(): ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
