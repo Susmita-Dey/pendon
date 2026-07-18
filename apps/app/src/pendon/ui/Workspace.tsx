@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { engine } from '../core/engine';
 import { NodeView } from './NodeView';
+import { screenToWorkspace } from '../core/viewport/math';
 
 export function Workspace() {
   const [state, setState] = useState(engine.getState());
@@ -34,6 +35,29 @@ export function Workspace() {
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
+  // Global Keyboard listener for Deletion & History
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+      if (!isTyping && (e.key === 'Backspace' || e.key === 'Delete')) {
+        engine.deleteSelectedNode();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          engine.redo();
+        } else {
+          engine.undo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     // Only pan on left-click background or middle-click
     if (e.button === 0 || e.button === 1) {
@@ -54,6 +78,14 @@ export function Workspace() {
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    // Only spawn if clicking on the abstract workspace
+    if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('workspace-world')) {
+      const world = screenToWorkspace(e.clientX, e.clientY, state.camera);
+      engine.spawnNode(world.x, world.y);
+    }
+  };
+
   const { x, y, z } = state.camera;
 
   return (
@@ -71,6 +103,7 @@ export function Workspace() {
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onDoubleClick={handleDoubleClick}
       onContextMenu={e => e.preventDefault()}
     >
       <div
