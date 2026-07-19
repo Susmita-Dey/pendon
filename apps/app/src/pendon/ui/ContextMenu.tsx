@@ -78,14 +78,14 @@ export function ContextMenu({ x, y, nodeId, onClose }: Props) {
           <Item label="Checklist" onClick={() => engine.upgradeNodeBehavior(nodeId, 'checklist', {}, '')} />
           <Item label="Formula" onClick={() => {}} />
           <Item label="Timeline" onClick={() => {}} />
-          <Item divider />
+          <Item divider label={''} />
           <Header label="Create" />
           <Item label="Frame" onClick={() => {}} />
           <Item label="Connection" onClick={() => {}} />
           <Item label="Divider" onClick={() => {}} />
-          <Item divider />
+          <Item divider label={''} />
           <Item label="Style" onClick={() => {}} />
-          <Item divider />
+          <Item divider label={''} />
           <Item label="Duplicate" onClick={() => { engine.selectNode(nodeId); engine.duplicateSelectedNodes(); }} />
           <Item label="Delete" onClick={() => { engine.selectNode(nodeId); engine.deleteSelectedNodes(); }} />
         </>

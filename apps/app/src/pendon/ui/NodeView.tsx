@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import type { PendonNode } from '../core/types';
+import type { PendonNode, ChecklistItem } from '../core/types';
 import { engine } from '../core/engine';
 import { pluginRegistry } from '../core/registry';
 import { ChecklistView } from './behaviors/ChecklistView';
-import { detectChecklistIntent, textToChecklist, detectPlainThoughtIntent, checklistToText } from '../core/behaviors/checklist';
+import { detectChecklistIntent, textToChecklist, detectPlainThoughtIntent } from '../core/behaviors/checklist';
 import { motion } from './motion';
 
 interface Props {
@@ -76,7 +76,7 @@ export function NodeView({ node, isEditing, isDragging, isFaded = false, zenMode
   const isPlain = node.behavior.id === 'plain';
   const isChecklist = node.behavior.id === 'checklist';
   const showChecklistBadge = isEditing && isPlain && detectChecklistIntent(node.text);
-  const showThoughtBadge = isEditing && isChecklist && detectPlainThoughtIntent(node.behaviorState?.items || []);
+  const showThoughtBadge = isEditing && isChecklist && detectPlainThoughtIntent((node.behaviorState as { items?: ChecklistItem[] })?.items || []);
 
   const handleUpgradeToChecklist = (e: React.PointerEvent) => {
     e.stopPropagation();
